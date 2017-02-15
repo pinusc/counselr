@@ -29,6 +29,10 @@
         $('#m').val('');
         return false;
       });
+      var adm = location.search === '?admin=true';
+      if (adm) {
+        socket.emit('role', 'adm');
+      }
       socket.on('chat message', function(msg){
         var name = msg.slice(1, msg.indexOf("$"));
         var msg1 = msg.slice(msg.indexOf("$") + 1);
