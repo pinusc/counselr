@@ -1,0 +1,79 @@
+@import 'node_modules/bulma/bulma.sass';
+
+body {
+    background-color: $primary;
+    width: 100vw;
+    height: 100vh;
+    padding: 3em 0;
+}
+
+#content {
+    width: 50%;
+}
+
+#content {
+    width: 50%;
+    height: 70vh;
+    margin: auto;
+}
+
+ul {
+    li  {
+        .sender {
+            font-weight: bold;
+        }
+        .asker {
+            color: $primary;
+        }
+        .counselor {
+            color: $info;
+        }
+    }
+}
+
+#send-controls {
+
+    #btn-send {
+        border: none;
+    }
+}
+
+//
+// #content #wrapper {
+//     width: 100%;
+//     height: 100%;
+//     position: relative;
+// }
+//
+// #content form {
+//     position: absolute;
+//     width: 90%;
+//     padding: 1em;
+//     bottom: 0em;
+// }
+//
+// #inputwrap {
+//     overflow: hidden;
+//     border: 1px solid #ddd;
+// }
+//
+// #inputwrap input {
+//     border: none;
+//     padding: 0.5em;
+//     width: 100%;
+// }
+//
+// button {
+//     float: right;
+//     padding: 0.5em;
+// }
+//
+// #messages {
+//     padding: 1em;
+//     list-style: none;
+// }
+//
+// #messages li span {
+//     color: red;
+//     font-weight: bold;
+// }

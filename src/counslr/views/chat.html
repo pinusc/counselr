@@ -5,20 +5,21 @@
     <link rel="stylesheet" href="/css/chat.css">
   </head>
   <body>
-    <div id="content">
-      <div id="wrapper">
-        <ul id="messages">
-        </ul>
+    <div id="content" class="box hero">
+      <ul id="messages"> </ul>
+      <div id="send-controls" class="hero-foot">
         <form action="">
-          <button>Send</button>
-          <div id="inputwrap">
-            <input type="text" id="m" autocomplete="off">
-          </div>
+          <p class="control is-grouped">
+            <input type="text" id="m" autocomplete="off" class="input">
+            <a id="btn-send" class="button is-expanded"><span class="icon"><i class="fa fa-paper-plane" aria-hidden="true"></span></i></a> 
+          </p>
         </form>
       </div>
     </div>
     <script src="https://cdn.socket.io/socket.io-1.2.0.js"></script>
     <script src="http://code.jquery.com/jquery-1.11.1.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore-min.js"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css">
     <script>
       var socket = io();
       var chan;
@@ -34,10 +35,13 @@
         socket.emit('role', 'adm');
       }
       socket.on('chat message', function(msg){
-        var name = msg.slice(1, msg.indexOf("$"));
-        var msg1 = msg.slice(msg.indexOf("$") + 1);
-        var color = msg[0] === 'c' ? 'red' : 'blue';
-        $('#messages').append($('<li><span class=' + color + '>' + name + ': </span>' + msg1 + '</li>'));
+        // var name = msg.slice(1, msg.indexOf("$"));
+        // var msg1 = msg.slice(msg.indexOf("$") + 1);
+        var color = msg.sender_role ? 'asker' : 'counselor';
+        // var HTMLmsg = '<li><span class=' + color + '>' + msg.sender_name + ': </span>' +msg.message_text + '</li>';
+        var HTMLtemplate = _.template("<li><span class='sender <%= color %>'><%= name %>: </span> <%= message_text %></li>");
+        var HTMLmsg = HTMLtemplate({color: color, name: msg.sender_name, message_text: msg.message_text});
+        $('#messages').append($(HTMLmsg));
       });
     </script>
   </body>

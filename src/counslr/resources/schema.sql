@@ -1,7 +1,8 @@
 create table chat (
-    id INTEGER PRIMARY KEY, 
+    chat_id INTEGER PRIMARY KEY, 
     asker TEXT, 
-    counselor TEXT
+    counselor TEXT,
+    url TEXT
 );
 
 create table message(
