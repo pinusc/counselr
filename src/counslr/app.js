@@ -13,8 +13,8 @@ var chat = require('./chat.js')(io);
 var auth = require('./auth.js')(app, router);
 
 app.get('/', function(req, res){
-    res.send('hi there')
-    // res.sendFile(__dirname + '/views/index.html');
+    // res.send('hi there')
+    res.sendFile(__dirname + '/views/index.html');
 });
 
 app.post('/', function(req, res){

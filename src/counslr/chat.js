@@ -4,10 +4,10 @@ var db = new sqlite3.Database(__dirname + '/resources/counselr.db');
 
 var adjectives, animals;
 
-sockets = []
-
 module.exports = function (io) {
     var module = {};
+
+    var chats = {};
 
     module.handleCommand = function (msg, socket) {
         var arr = msg.slice(1).split(" ");
@@ -21,7 +21,7 @@ module.exports = function (io) {
         return; // Not yet implemented
     }
 
-    module.saveMessage = function (room, socket, msg) {
+    module.saveMessage = function (socket, msg) {
         // var date = new Date().toISOString();
         var name = socket.name;
         
@@ -40,49 +40,52 @@ module.exports = function (io) {
     }
 
     module.sendMessage = function (socket, message) {
-        io.to(socket.id).emit('chat message', message);
+        var id = socket.id;
+        if (socket instanceof String) id = socket;
+        io.to(id).emit('chat message', message);
+        // console.log("sendMessage: " + message + ", id: " + id, ", socket: " + socket);
+        console.log("sendMessage");
+    }
+
+    function joinChat(socket, chat_name) {
+        var chat = chats[chat_name] || [];
+        chat.push(socket);
+        chats[chat_name] = chat;
     }
 
     module.onConnection = function (socket) {
-        console.log('foo');
-        sockets.push(socket);
-
         socket.on('chat message', function(msg){
-            console.log(msg);
+            console.log('msg received');
             if (msg[0] === "/") {
                 module.handleCommand(msg, socket);
                 return;
             }
-            for (var room in socket.rooms) {
-                if (room === socket.id) continue;
-                // io.to(room).emit('chat message', socket.name + "$" + msg)
+            module.saveMessage(socket, msg);
+            for (var i = 0; i < socket.chat.sockets.length; i++) {
+                var receiver_socket = socket.chat.sockets[i];
                 var message = module.messageToJSON(socket.isCounselor, socket.name, msg);
                 module.sendMessage(receiver_socket, message);
-                module.saveMessage(room, socket, msg);
             }
         });
 
         socket.on('join', function(msg){
-          for (var room in socket.rooms) { 
-              if (room === socket.id) continue;
-              socket.leave(room); // A socket may be only in one room at a time
-          }
-          socket.join(msg);
           console.log("join: " + msg);
 
-          // TODO replace 'db.each' with 'db.get'
-          db.each('SELECT asker, counselor, chat_id FROM chat WHERE url IS (?)', msg.slice(1), function(err, row_chat){
+          chat_name = msg.slice(1);
+          joinChat(socket, chat_name);
+          db.get('SELECT asker, counselor, chat_id FROM chat WHERE url IS (?)', chat_name, function(err, row_chat){
               socket.chat = {
                   counselor_name: row_chat.counselor,
                   asker_name: row_chat.asker,
-                  id: row_chat.chat_id
+                  id: row_chat.chat_id,
+                  sockets: chats[chat_name]
               }
               socket.name = row_chat.asker;
               db.each('SELECT sender, message_text FROM message WHERE chat_id IS (?)', row_chat.chat_id, function(err, row){
 
                   var sender_name = row.sender ? row_chat.counselor : row_chat.asker;
                   var message = module.messageToJSON(row.sender, sender_name, row.message_text);
-                  console.log(message);
+                  // console.log(message);
                   module.sendMessage(socket, message);
                });
           });

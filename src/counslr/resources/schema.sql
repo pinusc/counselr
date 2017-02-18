@@ -6,7 +6,7 @@ create table chat (
 );
 
 create table message(
-    message_id INTEGER, 
+    message_id INTEGER PRIMARY KEY, 
     sender INTEGER, 
     message_text TEXT, 
     chat_id INTEGER, 
