@@ -1,8 +1,10 @@
 create table chat (
     chat_id INTEGER PRIMARY KEY, 
-    asker TEXT, 
-    counselor TEXT,
-    url TEXT
+    asker INTEGER, 
+    counselor INTEGER,
+    url TEXT,
+    FOREIGN KEY (asker) REFERENCES user(user_id)
+    FOREIGN KEY (couselor) REFERENCES user(user_id)
 );
 
 create table message(

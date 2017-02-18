@@ -6,6 +6,8 @@ var FileStore = require('session-file-store')(session);
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 
+var User = require('./models/user.js')();
+
 module.exports = function(app, router) {
     var module = {}
 
@@ -64,32 +66,34 @@ module.exports = function(app, router) {
         // },
         // Turn the email address into a user ID
         passwordless.requestToken(
-            function(user, delivery, callback) {
-                console.log('stuck here');
-                console.log('user');
-                callback(null, user);
-                // User.findUser(email, function(error, user) {
-                //     if(error) {
-                //         callback(error.toString());
-                //     } else if(user) {
-                //         // return the user ID to Passwordless
-                //         callback(null, user.id);
-                //     } else {
-                //         // If the user couldn’t be found: Create it!
-                //         User.addUser(email,
-                //             function(error, user) {
-                //                 if(error) {
-                //                     callback(error.toString());
-                //                 } else {
-                //                     callback(null, user.id);
-                //                 }
-                //         })
-                //     }
-                   // })
+            function(email_address, delivery, callback) {
+                // console.log('stuck here');
+                // console.log('user');
+                // callback(null, user);
+                User.findUser(email_address, function(error, user) {
+                    console.log(email_address);
+                    if(error) {
+                        callback(error.toString());
+                    } else if(user) {
+                        // return the user ID to Passwordless
+                        console.log("User: " + user.id);
+                        callback(null, user.id);
+                    } else {
+                        // If the user couldn’t be found: Create it!
+                        User.addUser(email_address,
+                            function(error, user) {
+                                if(error) {
+                                    callback(error.toString());
+                                } else {
+                                    callback(null, user.id);
+                                }
+                        })
+                    }
+                   })
         }),
         function(req, res) {
             // Success! Tell your users that their token is on its way
-            res.send('token on the way');
+            res.sendFile(__dirname + '/views/token_sent.html');
     });
     app.use('/', router);
 
