@@ -6,10 +6,15 @@ var io = require('socket.io')(http);
 var _ = require('underscore')()
 var sassMiddleware = require('node-sass-middleware');
 var db = new sqlite3.Database(__dirname + '/resources/counselr.db');
+
+var router = express.Router();
+
 var chat = require('./chat.js')(io);
+var auth = require('./auth.js')(app, router);
 
 app.get('/', function(req, res){
-    res.sendFile(__dirname + '/views/index.html');
+    res.send('hi there')
+    // res.sendFile(__dirname + '/views/index.html');
 });
 
 app.post('/', function(req, res){
@@ -36,6 +41,7 @@ app.use(
 );
 
 app.use(express.static(__dirname + '/static'));
+
 
 
 // db.close();

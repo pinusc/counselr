@@ -12,3 +12,8 @@ create table message(
     chat_id INTEGER, 
     FOREIGN KEY (chat_id) REFERENCES chat
 );
+
+create table user(
+    user_id INTEGER PRIMARY KEY,
+    email TEXT
+);

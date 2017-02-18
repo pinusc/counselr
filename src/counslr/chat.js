@@ -70,6 +70,7 @@ module.exports = function (io) {
           socket.join(msg);
           console.log("join: " + msg);
 
+          // TODO replace 'db.each' with 'db.get'
           db.each('SELECT asker, counselor, chat_id FROM chat WHERE url IS (?)', msg.slice(1), function(err, row_chat){
               socket.chat = {
                   counselor_name: row_chat.counselor,
