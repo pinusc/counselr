@@ -8,23 +8,36 @@ module.exports = function() {
     var module = {};
 
     module.findUser = function(email, callback) {
-        console.log("findUser: " + email);
-        console.log(email);
-        db.get('SELECT user_id FROM user WHERE email IS (?)', email, function(err, row) {
+        db.get('SELECT * FROM user WHERE email IS (?)', email, function(err, row) {
             if (err) {
                 callback(err.toString());
             }
-            var user = row ? {id: row.user_id} : null;
+            // var user = row ? {id: row.user_id} : null;
             // user.id = row ? row.user_id : "";
-            callback(null, user);
+            callback(null, row);
         });
     };
+
+    module.findById = function(id, callback) {
+        db.get('SELECT * FROM user WHERE user_id IS (?)', id, function(err, row) {
+            if (err) {
+                callback(err.toString());
+            }
+            // user.id = row ? row.user_id : "";
+            callback(null, row);
+        });
+    }
 
     module.addUser = function(email, callback) {
         db.run('INSERT INTO user (email) VALUES (?)', email, function(err) {
             if (err)
                 callback(err.toString());
-            callback(null, this.lastID);
+            module.findById(this.lastID, function(err, row) {
+                if (err) {
+                    callback(err.toString());
+                }
+                callback(null, row);
+            });
         });
     };
 

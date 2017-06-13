@@ -48,11 +48,22 @@ module.exports = function(app, router) {
         secret: 'crazy cookie counseling gremlin',
         saveUninitialized: true,
         resave: true,
-        store: new FileStore()
+        // store: new FileStore()
     }));
 
     app.use(passwordless.sessionSupport());
-    app.use(passwordless.acceptToken({ successRedirect: '/' }));
+    app.use(passwordless.acceptToken({ successRedirect: '/admin' }));
+
+    app.use(function(req, res, next) {
+    if(req.user) {
+        User.findById(req.user, function(error, user) {
+            res.locals.user = user;
+            next();
+        });
+    } else { 
+        next();
+    }
+    });
 
     router.get('/login', function(req, res) {
         res.sendFile(__dirname + '/views/login.html');
@@ -70,32 +81,47 @@ module.exports = function(app, router) {
                 // console.log('stuck here');
                 // console.log('user');
                 // callback(null, user);
-                User.findUser(email_address, function(error, user) {
-                    console.log(email_address);
-                    if(error) {
-                        callback(error.toString());
-                    } else if(user) {
-                        // return the user ID to Passwordless
-                        console.log("User: " + user.id);
-                        callback(null, user.id);
-                    } else {
-                        // If the user couldn’t be found: Create it!
-                        User.addUser(email_address,
-                            function(error, user) {
-                                if(error) {
-                                    callback(error.toString());
-                                } else {
-                                    callback(null, user.id);
-                                }
-                        })
-                    }
-                   })
+                callback(null, email_address);
+                // User.findUser(email_address, function(error, user) {
+                //     console.log("findUser");
+                //     console.log(email_address);
+                //     console.log(user);
+                //     if(error) {
+                //         callback(error.toString());
+                //     } else if(user) {
+                //         // return the user ID to Passwordless
+                //         console.log("User: " + email);
+                //         callback(null, user.email);
+                //     } else {
+                //         // If the user couldn’t be found: Create it!
+                //         User.addUser(email_address,
+                //             function(error, user) {
+                //                 if(error) {
+                //                     callback(error.toString());
+                //                 } else {
+                //                     callback(null, user.email);
+                //                 }
+                //         })
+                //     }
+                //    })
         }),
         function(req, res) {
             // Success! Tell your users that their token is on its way
             res.sendFile(__dirname + '/views/token_sent.html');
     });
     app.use('/', router);
+
+    app.get('/admin', passwordless.restricted(),
+        function(req, res) {
+            res.send('admin: ' +  req.user);
+    });
+    router.get('/', function(req, res){
+        // res.send('hi there')
+        // res.sendFile(__dirname + '/views/index.html');
+        // console.log(req);
+        console.log("req.user: ", req.user);
+        res.render('index.html', {foo: req.user ? req.user.email : ''});
+    });
 
     return module 
 }
